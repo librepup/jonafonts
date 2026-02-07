@@ -1,7 +1,7 @@
 { stdenv, lib, pkgs, fetchgit, fetchFromGitHub, ... }:
 
 stdenv.mkDerivation {
-  pname = "Jonafonts";
+  pname = "jonafonts";
   version = "1.0";
 
   src = fetchgit {

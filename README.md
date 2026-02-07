@@ -41,6 +41,59 @@ After that, run `guix pull`, followed by an optional `hash guix`. Then you shoul
 
 %guix-os
 ```
+### NixOS
+Either download the [default.nix](https://github.com/librepup/fonts/blob/main/default.nix) Nix Package Expression, link it in your `configuration.nix`, and install it into your `fonts` block like this:
+```nix
+{ config, pkgs, lib, ... }:
+let
+  jonafonts = pkgs.callPackage ./path/to/default.nix { };
+in
+{
+  fonts = {
+    packages = with pkgs; [
+      jonafonts
+    ];
+  };
+}
+```
+
+Or, import the Jonafonts [flake](https://github.com/librepup/fonts/blob/main/flake.nix) into your `flake.nix`, and enable the NixOS system module to install the font for you, like this:
+```nix
+{
+  description = "My Flake";
+  inputs = {
+    jonafonts.url = "github:librepup/jonafonts"; # Jonafonts Flake
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
+  outputs = inputs@{ self, nixpkgs, jonafonts, ... }: # Add 'jonafonts' here.
+    let
+      system = "x86_64-linux";
+    in
+    {
+      # ... your Hostname below ...
+      nixosConfigurations.HOSTNAME = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {
+          inherit inputs;
+        };
+        modules = [
+          # ... your other Modules ...
+          # Import Jonafonts System Module:
+          self.inputs.jonafonts.nixosModules.jonafonts
+        ];
+        ({ config, pkgs, lib, ... }:
+          {
+            imports = [
+              # ... your Imports ...
+            ];
+            # Enable Jonafonts NixOS Installation Module
+            jonafonts.enable = true;
+          }
+        )
+      }
+    };
+}
+```
 ## Fonts
 The Jonafonts Bundle includes the following fonts:
 - Synapsian Script ("Synapsian:Regular")
